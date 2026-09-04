@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { CURATED_COUNTRIES, DEFAULT_COUNTRY, type Country } from "./countries";
-import { SCHEMES } from "./schemes";
-import { ALL_KEYWORDS, LOAN_TYPES, SITE, SITE_URL, SOCIAL_LINKS } from "./site";
+import { schemesFor } from "./schemes";
+import { loanCalculatorTitle } from "./naming";
+import { ALL_KEYWORDS, loanTypesFor, SITE, SITE_URL, SOCIAL_LINKS } from "./site";
 
 /* ------------------------------------------------------------------ */
 /* Metadata builder                                                    */
@@ -304,13 +305,20 @@ export function itemListSchema(name: string, items: { name: string; path: string
  * engine nothing to associate the homepage with "SIP calculator" or
  * "PPF calculator".
  */
-export function calculatorListSchema() {
+export function calculatorListSchema(countryCode: string = DEFAULT_COUNTRY) {
+  // Built from the same localised config the pages render, so the structured
+  // data names match the visible ones. Emitting the Indian names here put
+  // "Car Loan" and "FD Calculator" on a US page alongside "Auto Loan" and
+  // "Certificate of Deposit".
   return itemListSchema("Loan and investment calculators", [
-    ...LOAN_TYPES.map((t) => ({
-      name: `${t.label} EMI Calculator`,
-      path: `/${t.slug}`,
+    ...loanTypesFor(countryCode).map((t) => ({
+      name: loanCalculatorTitle(countryCode, t.label),
+      path: `/${countryCode}/${t.slug}`,
     })),
-    ...SCHEMES.map((s) => ({ name: s.name, path: `/${s.slug}` })),
+    ...schemesFor(countryCode).map((s) => ({
+      name: s.name,
+      path: `/${countryCode}/${s.slug}`,
+    })),
   ]);
 }
 
@@ -321,17 +329,22 @@ export function calculatorListSchema() {
  * is made from a site's own navigation and internal linking. This states that
  * structure explicitly rather than leaving it to be inferred from the markup.
  */
-export function siteNavigationSchema() {
+export function siteNavigationSchema(countryCode: string = DEFAULT_COUNTRY) {
+  const p = (path: string) => `/${countryCode}${path}`;
   const entries = [
-    { name: "Home Loan Calculator", path: "/home-loan-emi-calculator" },
-    { name: "Personal Loan Calculator", path: "/personal-loan-emi-calculator" },
-    { name: "SIP Calculator", path: "/sip-calculator" },
-    { name: "PPF Calculator", path: "/ppf-calculator" },
-    { name: "FD Calculator", path: "/fd-calculator" },
-    { name: "Investment Calculators", path: "/investment-calculators" },
-    { name: "Compare Bank Loans", path: "/compare-loans" },
-    { name: "Compare Investments", path: "/compare-investments" },
-    { name: "Bank Interest Rates", path: "/bank-interest-rates" },
+    ...loanTypesFor(countryCode)
+      .slice(0, 3)
+      .map((t) => ({
+        name: loanCalculatorTitle(countryCode, t.label),
+        path: p(`/${t.slug}`),
+      })),
+    ...schemesFor(countryCode)
+      .slice(0, 3)
+      .map((s) => ({ name: s.name, path: p(`/${s.slug}`) })),
+    { name: "Investment Calculators", path: p("/investment-calculators") },
+    { name: "Compare Bank Loans", path: p("/compare-loans") },
+    { name: "Compare Investments", path: p("/compare-investments") },
+    { name: "Bank Interest Rates", path: p("/bank-interest-rates") },
     { name: "Money Guides", path: "/blog" },
   ];
 
