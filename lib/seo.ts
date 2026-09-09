@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { CURATED_COUNTRIES, DEFAULT_COUNTRY, type Country } from "./countries";
+import { DEFAULT_COUNTRY, LIVE_COUNTRIES, type Country } from "./countries";
 import { schemesFor } from "./schemes";
 import { loanCalculatorTitle } from "./naming";
 import { ALL_KEYWORDS, loanTypesFor, SITE, SITE_URL, SOCIAL_LINKS } from "./site";
@@ -63,7 +63,7 @@ export function pageMetadata({
   const languages =
     country && countryPath
       ? Object.fromEntries([
-          ...CURATED_COUNTRIES.map((c) => [
+          ...LIVE_COUNTRIES.map((c) => [
             `en-${c.code.toUpperCase()}`,
             `${SITE_URL}/${c.code}${countryPath}`,
           ]),
@@ -71,7 +71,10 @@ export function pageMetadata({
         ])
       : undefined;
 
-  const keepOut = noIndex || (country !== undefined && !country.curated);
+  // Indexable only where the market is actually offered. A page for a country
+  // with no lender data behind it is padding, and padding at this scale is
+  // what the AdSense review called low value content.
+  const keepOut = noIndex || (country !== undefined && !country.launched);
 
   /**
    * The keyword sets were written for an India-only site: they name Indian
