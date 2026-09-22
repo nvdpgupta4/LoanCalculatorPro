@@ -27,7 +27,9 @@
     "gen:favicon": "node --import tsx scripts/make-favicon.tsx",
     "verify:countries": "node --import tsx scripts/verify-countries.ts",
     "db:migrate:country": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx scripts/migrate-country.ts",
-    "db:migrate:country:prod": "node --conditions=react-server --env-file=.env.prod.local --import tsx scripts/migrate-country.ts"
+    "db:migrate:country:prod": "node --conditions=react-server --env-file=.env.prod.local --import tsx scripts/migrate-country.ts",
+    "db:author": "node --conditions=react-server --env-file-if-exists=.env.local --import tsx scripts/set-author.ts",
+    "db:author:prod": "node --conditions=react-server --env-file=.env.prod.local --import tsx scripts/set-author.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
